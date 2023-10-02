@@ -1,0 +1,54 @@
+// Rules whether to take the new char(i) as a new center
+
+// 1.Skip if totally contained under current palindrome
+// 2.Break the while loop if current palindrome expands till end of input
+// 3.Take it if it expands to the right edge and its mirror palindrome
+// is a proper suffix as well
+// 4.Skip if it expands to the right edge but its mirror expands beyond left edge 
+
+function longestPalindrome(s) {
+  let s_prime = '#' + s.split('').join('#') + '#';
+  let n = s_prime.length;
+  let palindrome_radii = Array(n).fill(0);
+  let center = 0;
+  let radius = 0;
+
+  for (let i = 0; i < n; i++) {
+    let mirror = 2 * center - i; //2 * since we added extra symbols
+
+    if (i < radius) {
+      palindrome_radii[i] = Math.min(radius - i, palindrome_radii[mirror]);
+    }
+
+    while ( //palindrome check
+      i + 1 + palindrome_radii[i] < n && //not reaching the length
+      i - 1 - palindrome_radii[i] >= 0 && //not reaching the start
+      s_prime[i + 1 + palindrome_radii[i]] === s_prime[i - 1 - palindrome_radii[i]]
+    ) {
+      palindrome_radii[i] += 1; //increment
+    }
+
+    // update the new longest palindrome 
+    if (i + palindrome_radii[i] > radius) {
+      center = i;
+      radius = palindrome_radii[i];
+    }
+  }
+
+  // find the biggest radius
+  let max_length = Math.max(...palindrome_radii);
+  let center_index = palindrome_radii.indexOf(max_length);
+  let start_index = Math.floor((center_index - max_length) / 2);
+  let longest_palindrome = s.substr(start_index, max_length);
+
+  return longest_palindrome;
+}
+
+var input = "abaxabaxabybaxabyb";
+console.log("input is " + input);
+
+console.log(longestPalindrome(input)); // Output: "bab" or "aba"
+
+
+//#a#b#
+//#a#b#c#
